@@ -1,3 +1,26 @@
+#canvasContainer {
+	position: relative;
+}
+#canvasContainer canvas, #overlay {
+	position: absolute;
+}
 canvas {
 	border: 1px solid red;
+}
+#overlay {
+	width: 602px;
+	height: 402px;
+	background: rgb(204, 204, 204); /* For old browsers */
+	background: rgba(204, 204, 204, 0.5);
+	/*opacity: 0.5;*/
+	z-index: -1;
+	text-align: center;
+}
+#newFrame {
+	position: absolute;
+	top: 415px;
+}
+#topScores {
+	position: absolute;
+	left: 55%;
 }

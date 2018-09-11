@@ -7,7 +7,28 @@
 	<body>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script src="game.js"></script>
-		<canvas id="canvas" width=600 height=400></canvas>
-		<button id='newFrame'>New Frame</button>
+		<div id="canvasContainer">
+			<canvas id="canvas" width=600 height=400></canvas>
+			<div id="overlay">
+				<p>You Lost.</p>
+				<button id="restart">Restart</button>
+			</div>
+		</div>
+		<div id="topScores">
+			<p>High Scores</p>
+			<ol>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+			</ol>
+		</div>
+		<button id="newFrame">New Frame</button>
 	</body>
 </html>
