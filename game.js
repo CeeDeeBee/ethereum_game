@@ -2,7 +2,7 @@
 //On DOM load
 $(document).ready(function() {
 	//set default values
-	var fps = 60;
+	var fps = 120;
 	var percent = 100;
 	var direction = 5;
 	var frame = 0;
@@ -10,15 +10,7 @@ $(document).ready(function() {
 	var jump = false;
 	var started = false;
 	var shouldLoop = true;
-	var obstacles = [false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, false,
-					 false, false, false, false, false, false, false, false, false, "box"
-					];
+	var obstacles = {box: [535], pit: []};
 	var highScores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	var holdingJump = false;
 	var holdingJumpTime = 0;
@@ -97,13 +89,6 @@ $(document).ready(function() {
 
 	function draw(sliderValue) {
 		drawStage();
-		/*
-		ctx.beginPath();
-		ctx.moveTo(100, 20);
-		ctx.lineTo(100, 160);
-		ctx.strokeStyle = "black";
-		ctx.stroke();
-		*/
 
 		var percent = sliderValue / 100;
 		//console.log(percent);
@@ -122,37 +107,23 @@ $(document).ready(function() {
 
 		//console.log(obstacles);
 		//console.log(pits);
+		//Colision detection
 		if ((xy.y - 8) >= 140) {
-			if (obstacles[3] == "box" || obstacles[4] == "box" || obstacles[5] == "box" || obstacles[6] == "box" || obstacles[7] == "box" || obstacles[8] == "box" || obstacles[9] == "box") {
-				console.log("collision");
-				shouldLoop = false;
-				gameOver();	
-			} else if (xy.y >= 160) {
-				if (obstacles[3] == "pit" || obstacles[4] == "pit" || obstacles[5] == "pit") {
-					console.log("collision");
-					shouldLoop = false;
+			$.each(obstacles.box, function(index, value) {
+				if (value > 72.5 && value < 110) {
 					gameOver();
-					console.log(xy);
-					console.log(obstacles);
 				}
-			}
+			});
+		}
+		if (xy.y == 160) {
+			$.each(obstacles.pit, function(index, value) {
+				if (value > 66.25 && value < 97) {
+					gameOver();
+				}
+			});
 		}
 
 		score += .1;
-
-		/*
-		var lastCalledTime;
-		var fps;
-		if (!lastCalledTime) {
-			lastCalledTime = performance.now();
-			fps = 0;
-			return;
-		}
-		delta = (performance.now() - lastCalledTime)/1000;
-		lastCalledTime = performance.now();
-		fps = 1 / delta;
-		console.log(fps);
-		*/
 	}
 
 	function getLineXYatPercent(startPt, endPt, percent) {
@@ -194,67 +165,54 @@ $(document).ready(function() {
 		ctx.moveTo(50, 170);
 		ctx.lineTo(550, 170);
 		ctx.stroke();
-		/*
-		$.each(pits, function(index, value) {
-			let point = 0;
-			if (value) {
-				point = (index * 6.25) + 50;
-				ctx.beginPath();
-				ctx.lineWidth = 4;
-				ctx.strokeStyle = "white";
-				ctx.moveTo(point, 170);
-				ctx.lineTo((point + 6.25), 170);
-				ctx.stroke();
-				pits[index] = false;
-				if (index != 0) {
-					pits[index - 1] = true;
-				}
+		//draw obstacles
+		$.each(obstacles.box, function(index, value) {
+			if (value > 50) {
+				drawObstacle(value);
+				obstacles.box[index] = value - 6.25; 
+				console.log(obstacles.pit[obstacles.pit.length - 1]);
+			} else {
+				obstacles.box.splice(index, 1);
 			}
 		});
-		*/
-		//draw obstacles
-		$.each(obstacles, function(index, value) {
-			if (value == "box") {
-				let point = (index * 6.25) + 50;
-				drawObstacle(point);
-				obstacles[index] = false;
-				if (index != 0) {
-					obstacles[index - 1] = "box";
-				}
-			} else if (value == "pit") {
-				let point = (index * 6.25) + 50;
-				ctx.beginPath();
-				ctx.lineWidth = 4;
-				ctx.strokeStyle = "white";
-				ctx.moveTo(point, 170);
-				ctx.lineTo((point + 6.5), 170);
-				ctx.stroke();
-				obstacles[index] = false;
-				if (index != 0) {
-					obstacles[index - 1] = "pit";
-				}
+		$.each(obstacles.pit, function(index, value) {
+			if (value > 10) {
+				drawPit(value);
+				obstacles.pit[index] = value - 6.25;
+			} else {
+				obstacles.pit.splice(index, 1);
 			}
 		});
 		//generate new obstacles
-		if (Math.random() < .01) {
-			if (obstacles[79] != "pit") {
-				obstacles[79] = "box";
+		if (Math.random() < 0.01) {
+			if (obstacles.pit[obstacles.pit.length - 1] < 495 || obstacles.pit[obstacles.pit.length - 1] == undefined) {
+				obstacles.box.push(535);
 			}
-		} else if (Math.random() < .01) {
-			for (let i = 79; i < 85; i ++) {
-				obstacles[i] = "pit";
+		} else if (Math.random() < 0.01) {
+			if (obstacles.box[obstacles.box.length - 1] < 495 || obstacles.box[obstacles.box.length - 1] == undefined) {
+				obstacles.pit.push(510);
 			}
 		}
 	}
 
 	function drawObstacle(point) {
-		//draw obstacles
+		//console.log(point);
 		ctx.fillStyle = "black";
 		ctx.strokeStyle = "black";
 		ctx.lineWidth = 3;
 		ctx.beginPath();
 		ctx.rect(point, 155, 15, 15);
 		ctx.fill();
+		ctx.stroke();
+	}
+
+	function drawPit(point) {
+		//console.log(point);
+		ctx.beginPath();
+		ctx.lineWidth = 4;
+		ctx.strokeStyle = "white";
+		ctx.moveTo(point, 170);
+		ctx.lineTo((point + 40), 170);
 		ctx.stroke();
 	}
 
@@ -265,6 +223,7 @@ $(document).ready(function() {
 	}
 
 	function gameOver() {
+		shouldLoop = false;
 		$("#overlay").css("z-index", 1);
 		$.each(highScores, function(index, value) {
 			//console.log(index);
@@ -275,16 +234,14 @@ $(document).ready(function() {
 		});
 		highScores.sort(function(a, b) { return b - a });
 		highScores.pop();
-		//console.log(highScores);
 		updateScores();
 	}
 
 	function restart() {
 		$("#overlay").css("z-index", -1);
-		$.each(obstacles, function(index) {
-			obstacles[index] = false;
-		});
-		obstacles[79] = "box";
+		obstacles.box = [];
+		obstacles.box.push(535);
+		obstacles.pit = [];
 		started = false;
 		shouldLoop = true;
 		percent = 100;
