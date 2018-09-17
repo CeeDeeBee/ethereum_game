@@ -15,6 +15,7 @@ $(document).ready(function() {
 	var holdingJump = false;
 	var holdingJumpTime = 0;
 	var xy;
+	var obstacleSpeed = 6.25;
 	/*
 	var $div = $("<div>", {id: "testDiv", "class": "div"}).html("Test");
 	$("body").append($div);
@@ -30,7 +31,7 @@ $(document).ready(function() {
 				started = true;
 			}
 		} else if (e.which == 13) {
-			if ($("#overlay").css("z-index") == 1) {
+			if ($("#overlay").css("z-index") == 5) {
 				restart();
 			} 
 		}
@@ -124,6 +125,8 @@ $(document).ready(function() {
 		}
 
 		score += .1;
+		obstacleSpeed += 0.001;
+		//console.log(obstacleSpeed);
 	}
 
 	function getLineXYatPercent(startPt, endPt, percent) {
@@ -166,31 +169,38 @@ $(document).ready(function() {
 		ctx.lineTo(550, 170);
 		ctx.stroke();
 		//draw obstacles
+		let boxesToRemove = [];
 		$.each(obstacles.box, function(index, value) {
 			if (value > 50) {
 				drawObstacle(value);
-				obstacles.box[index] = value - 6.25; 
-				console.log(obstacles.pit[obstacles.pit.length - 1]);
+				obstacles.box[index] = value - obstacleSpeed; 
 			} else {
-				obstacles.box.splice(index, 1);
+				boxesToRemove.push(index);
 			}
 		});
+		$.each(boxesToRemove, function(index, value) {
+			obstacles.box.splice(value, 1);
+		});
+		let pitsToRemove = [];
 		$.each(obstacles.pit, function(index, value) {
 			if (value > 10) {
 				drawPit(value);
-				obstacles.pit[index] = value - 6.25;
+				obstacles.pit[index] = value - obstacleSpeed;
 			} else {
-				obstacles.pit.splice(index, 1);
+				pitsToRemove.push(index);
 			}
+		});
+		$.each(pitsToRemove, function(index, value) {
+			obstacles.pit.splice(value, 1);
 		});
 		//generate new obstacles
 		if (Math.random() < 0.01) {
-			if (obstacles.pit[obstacles.pit.length - 1] < 495 || obstacles.pit[obstacles.pit.length - 1] == undefined) {
-				obstacles.box.push(535);
+			if ((obstacles.pit[obstacles.pit.length - 1] < 510 && obstacles.box[obstacles.box.length - 1] < 535) || obstacles.pit[obstacles.pit.length - 1] == undefined) {
+				obstacles.box.push(550);
 			}
 		} else if (Math.random() < 0.01) {
-			if (obstacles.box[obstacles.box.length - 1] < 495 || obstacles.box[obstacles.box.length - 1] == undefined) {
-				obstacles.pit.push(510);
+			if ((obstacles.box[obstacles.box.length - 1] < 535 && obstacles.pit[obstacles.pit.length - 1] < 510) || obstacles.box[obstacles.box.length - 1] == undefined) {
+				obstacles.pit.push(550);
 			}
 		}
 	}
@@ -224,7 +234,6 @@ $(document).ready(function() {
 
 	function gameOver() {
 		shouldLoop = false;
-		$("#overlay").css("z-index", 1);
 		$.each(highScores, function(index, value) {
 			//console.log(index);
 			if (score > highScores[index]) {
@@ -235,6 +244,7 @@ $(document).ready(function() {
 		highScores.sort(function(a, b) { return b - a });
 		highScores.pop();
 		updateScores();
+		$("#overlay").css("z-index", 5);
 	}
 
 	function restart() {
@@ -247,6 +257,8 @@ $(document).ready(function() {
 		percent = 100;
 		frame = 0;
 		score = 0;
+		jump = false;
+		obstacleSpeed = 6.25;
 		drawStage();
 		drawRect({x: 100, y: 160});
 	}
