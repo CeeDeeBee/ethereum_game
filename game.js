@@ -4,7 +4,7 @@ $(document).ready(function() {
 	//set default values
 	var fps = 120;
 	var percent = 100;
-	var direction = 5;
+	var direction = 10;
 	var frame = 0;
 	var score = 0;
 	var jump = false;
